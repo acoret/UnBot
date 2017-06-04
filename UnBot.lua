@@ -5,7 +5,7 @@
 --###################################
 
 --env
---__debug=true
+__debug=true
 if __debug then	
   function print(x) weechat.print(debug_buffer,x)end
 end
@@ -32,15 +32,19 @@ function checkandrun(data, signal, signal_data)
   server = string.match(signal,"(.-),")
   channel = string.match(signal_data,"(#[^ ]+)")
   local mynick = weechat.info_get("irc_nick", server)
-  --if __debug then	weechat.print(debug_buffer,mynick) end
   if not channel then	return weechat.WEECHAT_RC_OK end
-  local command=string.match(signal_data,"[^ ]+ [^ ]+ #[^ ]+ ::([^ ]+)")
-  local _,args=string.match(signal_data,"[^ ]+ [^ ]+ #[^ ]+ ::([^ ]+)([^ ]+)")
-  if __debug then	if ma_nick~=mynick then	print(ma_nick) return end
+  local ma_nick,command=string.match(signal_data,"[^ ]+ [^ ]+ #[^ ]+ :([%a%d_]+): -@([^ ]+)")
+  local _,_,args=string.match(signal_data,"[^ ]+ [^ ]+ #[^ ]+ :([%a%d_]+): -@([^ ]+) ([^ ]+)")
+  weechat.print(debug_buffer,signal_data)
+  if not ma_nick then return end
+  if not command then return end
+  if not args then args='' end
+  if __debug then	if ma_nick==mynick then	weechat.print(debug_buffer,"nick ".. nick.." command: "..command.." args: "..args) end
   end
   buffer = weechat.info_get("irc_buffer",server..","..channel)
-  fuc[command](buffer,nick,args)
-  if __debug then	weechat.print(debug_buffer,"name table add "..buffer.." "..nick) end
+  if ma_nick==mynick then 
+  	fuc[command](buffer,nick,args)
+  end
 end
 
 function respond(data,buffer,args)
