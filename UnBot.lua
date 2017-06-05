@@ -25,6 +25,7 @@ fuc["update"]=function (buffer,username)
 			  end
 fuc["ghc"]=function (buffer,username,args)
   				local filename=string.match(args,"(%s+)")
+				if not filename then return  end
 				os.execute("ghc /home/shared/UnBot/haskell/"..filename.." >> result.out")
 				local file=io.open("/home/shared/UnBot/haskell/result.out")
 				local str=file:read("*a")
