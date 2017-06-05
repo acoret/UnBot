@@ -1,3 +1,3 @@
 #!/bin/sh
-cd ./
+cd `dirname $1`
 git pull

@@ -15,20 +15,26 @@ hook={}
 r_name={}
 e_name={}
 fuc={}
-setmetatable(fuc,
-  {
-  __index=function(buffer,username,...)
-			weechat.command(buffer,"/say " .. username ..":Command unfound")
-		  end
-  }
-  )
+fuc["unknow"]=function(buffer,username)
+				weechat.command(buffer,"/msg " .. username .." Command unfound")
+			  end
 fuc["update"]=function (buffer,username) 
   				os.execute("/home/shared/UnBot/update.sh")
-				weechat.command(buffer,"/say "..username..": updated!")
+				weechat.command(buffer,"/msg "..username.." updated!")
+				weechat.command(buffer,"/lua reload UnBot")
 			  end
+fuc["ghc"]=function (buffer,username,args)
+  				local filename=string.match(args,"(%s+)")
+				os.execute("ghc /home/shared/UnBot/haskell/"..filename.." >> result.out")
+				local file=io.open("/home/shared/UnBot/haskell/result.out")
+				local str=file:read("*a")
+				weechat.command(buffer,"/msg "..username.." "..str)
+			  end
+				
 
 function checkandrun(data, signal, signal_data)
   nick = weechat.info_get("irc_nick_from_host", signal_data)
+  buffer =weechat.info_get("irc_buffer" , signal_data)
   server = string.match(signal,"(.-),")
   channel = string.match(signal_data,"(#[^ ]+)")
   local mynick = weechat.info_get("irc_nick", server)
@@ -39,11 +45,17 @@ function checkandrun(data, signal, signal_data)
   if not ma_nick then return end
   if not command then return end
   if not args then args='' end
-  if __debug then	if ma_nick==mynick then	weechat.print(debug_buffer,"nick ".. nick.." command: "..command.." args: "..args) end
+  if __debug then	if ma_nick==mynick then	weechat.print(debug_buffer,"nick:".. nick.." command:"..command.." args:"..args) end
   end
   buffer = weechat.info_get("irc_buffer",server..","..channel)
   if ma_nick==mynick then 
-  	fuc[command](buffer,nick,args)
+	if command  then
+	  if fuc[command] then 
+	  	fuc[command](buffer,nick,args)
+	  else
+		fuc["unknow"](buffer,nick,args)
+	  end
+	end
   end
 end
 
