@@ -26,7 +26,7 @@ fuc["update"]=function (buffer,username)
 fuc["ghc"]=function (buffer,username,args)
   				local filename=string.match(args,"(%s+)")
 				if not filename then return  end
-				os.execute("ghc /home/shared/UnBot/haskell/"..filename.." >> result.out")
+				os.execute("cd /home/shared/UnBot/haskell/;ghc "..filename.." >> result.out")
 				local file=io.open("/home/shared/UnBot/haskell/result.out")
 				local str=file:read("*a")
 				weechat.command(buffer,"/msg "..username.." "..str)
